@@ -38,11 +38,11 @@ class VirtualSwitchToMachineConnectorIntegrationTest(TestCase):
 
         virtual_machine_path = 'QualiSB/Raz'
         virtual_machine_name = '1'
-        vm_uuid = py_vmomi_service.( si, virtual_machine_name)
+        vm_uuid = py_vmomi_service.find_vm_by_name(si ,virtual_machine_path, virtual_machine_name).config.uuid
         port_group_path = 'QualiSB'
         dv_switch_path = 'QualiSB'
         dv_switch_name = 'dvSwitch'
-        dv_port_name = 'boris_group12'
+        dv_port_name = 'boris_group85'
 
         # Act
         virtual_switch_to_machine_connector.connect(virtual_machine_name, dv_switch_path, dv_switch_name,

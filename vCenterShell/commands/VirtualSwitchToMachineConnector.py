@@ -19,9 +19,34 @@ class VirtualSwitchToMachineConnector(object):
 
         logger.debug("virtual machine vmUUID {}".format(vm_uuid))
         vm = self.pyvmomi_service.find_by_uuid(si, vm_uuid)
+
+        network = self.get_or_create_network(dv_port_name,
+                                             dv_switch_name,
+                                             dv_switch_path,
+                                             port_group_path,
+                                             si,
+                                             vlad_id,
+                                             vlan_spec, vm)
+
+        self.virtual_machine_port_group_configurer.connect_port_group(vm, network)
+
+    def get_or_create_network(self,
+                              dv_port_name,
+                              dv_switch_name,
+                              dv_switch_path,
+                              port_group_path,
+                              si,
+                              vlad_id,
+                              vlan_spec, vm):
+        # check if the network is attached to the vm and gets it, the function doesn't goes to the vcenter
         network = self.pyvmomi_service.get_network_by_name_from_vm(vm, dv_port_name)
 
-        # checks if the port group is already exist
+        # if we didn't found the network on the vm
+        if network is None:
+            # try to get it from the vcenter
+            network = self.pyvmomi_service.find_network_by_name(si, port_group_path, dv_port_name)
+
+        # if we still couldn't get the network ---> create it(can't find it, play god!)
         if network is None:
             self.dv_port_group_creator.create_dv_port_group(dv_port_name,
                                                             dv_switch_name,
@@ -29,7 +54,4 @@ class VirtualSwitchToMachineConnector(object):
                                                             si,
                                                             vlan_spec,
                                                             vlad_id)
-            # get the network that we created
-            network = self.pyvmomi_service.find_network_by_name(si, port_group_path, dv_port_name)
-
-        self.virtual_machine_port_group_configurer.configure_port_group_on_vm(vm, network)
+        return network

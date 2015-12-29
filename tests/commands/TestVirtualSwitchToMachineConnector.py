@@ -18,9 +18,12 @@ class TestVirtualSwitchToMachineConnector(TestCase):
     def test_connect(self):
         # Arrange
         si = Mock()
+        network = Mock()
+        vm = Mock()
 
         py_vmomi_service = Mock()
         py_vmomi_service.connect = Mock(return_value=si)
+        py_vmomi_service.find_by_uuid = Mock(return_value=vm)
 
         resource_connection_details_retriever = Mock()
         dv_port_group_creator = MagicMock()
@@ -45,12 +48,8 @@ class TestVirtualSwitchToMachineConnector(TestCase):
                                                     port_group_path, 11, vlan_spec)
 
         # Assert
-        dv_port_group_creator.create_dv_port_group.assert_called_with(dv_port_name, dv_switch_name, dv_switch_path, si,
-                                                                      vlan_spec, 11)
-        virtual_machine_port_group_configurer.configure_port_group_on_vm.assert_called_with(si, virtual_machine_path,
-                                                                                            vm_uuid,
-                                                                                            port_group_path,
-                                                                                            dv_port_name)
+        self.assertTrue(py_vmomi_service.get_network_by_name_from_vm.called_with(vm, dv_port_name))
+        self.assertTrue(virtual_machine_port_group_configurer.connect_port_group.called_with(vm, network))
 
     def get_uuid(self):
         credentials = TestCredentials()

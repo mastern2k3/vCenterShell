@@ -38,8 +38,7 @@ class Bootstrapper(object):
         # Virtual Switch Connect
         synchronous_task_waiter = SynchronousTaskWaiter()
         dv_port_group_creator = DvPortGroupCreator(py_vmomi_service, synchronous_task_waiter)
-        virtual_machine_port_group_configurer = VirtualMachinePortGroupConfigurer(py_vmomi_service,
-                                                                                  synchronous_task_waiter)
+        virtual_machine_port_group_configurer = VirtualMachinePortGroupConfigurer(synchronous_task_waiter)
         virtual_switch_to_machine_connector = VirtualSwitchToMachineConnector(py_vmomi_service,
                                                                               resource_connection_details_retriever,
                                                                               dv_port_group_creator,
@@ -55,7 +54,8 @@ class Bootstrapper(object):
         virtual_switch_disconnect_command = \
             VirtualSwitchToMachineDisconnectCommand(pyVmomiService,
                                                     resource_connection_details_retriever,
-                                                    synchronous_task_waiter)
+                                                    synchronous_task_waiter,
+                                                    virtual_machine_port_group_configurer)
 
         # Power Command
         vm_power_management_command = VirtualMachinePowerManagementCommand(pyVmomiService,
