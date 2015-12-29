@@ -1,6 +1,3 @@
-from pyVmomi import vim
-from pycommon.pyVmomiService import *
-from pycommon.SynchronousTaskWaiter import SynchronousTaskWaiter
 from vCenterShell.commands.VirtualMachinePortGroupConfigurer import *
 
 
@@ -20,8 +17,19 @@ class VirtualSwitchToMachineConnector(object):
                                           connection_details.password,
                                           connection_details.port)
 
-        self.dv_port_group_creator.create_dv_port_group(dv_port_name, dv_switch_name, dv_switch_path, si, vlan_spec, vlad_id)
+        logger.debug("virtual machine vmUUID {}".format(vm_uuid))
+        vm = self.pyvmomi_service.find_by_uuid(si, vm_uuid)
+        network = self.pyvmomi_service.get_network_by_name_from_vm(vm, dv_port_name)
 
-        self.virtual_machine_port_group_configurer.configure_port_group_on_vm(si, virtual_machine_path, vm_uuid,
-                                                                              port_group_path,
-                                                                              dv_port_name)
+        # checks if the port group is already exist
+        if network is None:
+            self.dv_port_group_creator.create_dv_port_group(dv_port_name,
+                                                            dv_switch_name,
+                                                            dv_switch_path,
+                                                            si,
+                                                            vlan_spec,
+                                                            vlad_id)
+            # get the network that we created
+            network = self.pyvmomi_service.find_network_by_name(si, port_group_path, dv_port_name)
+
+        self.virtual_machine_port_group_configurer.configure_port_group_on_vm(vm, network)

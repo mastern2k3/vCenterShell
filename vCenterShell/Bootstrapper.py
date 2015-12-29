@@ -1,4 +1,6 @@
+import qualipy.scripts.cloudshell_scripts_helpers as helpers
 from pyVim.connect import SmartConnect, Disconnect
+
 from pycommon.CloudshellDataRetrieverService import CloudshellDataRetrieverService
 from pycommon.ResourceConnectionDetailsRetriever import ResourceConnectionDetailsRetriever
 from pycommon.SynchronousTaskWaiter import SynchronousTaskWaiter
@@ -16,7 +18,6 @@ from vCenterShell.commands.VirtualSwitchConnectCommand import VirtualSwitchConne
 from vCenterShell.commands.VirtualSwitchToMachineConnector import VirtualSwitchToMachineConnector
 from vCenterShell.commands.VirtualSwitchToMachineDisconnectCommand import VirtualSwitchToMachineDisconnectCommand
 from vCenterShell.commands.VlanSpecFactory import VlanSpecFactory
-import qualipy.scripts.cloudshell_scripts_helpers as helpers
 
 
 class Bootstrapper(object):

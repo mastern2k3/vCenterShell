@@ -439,3 +439,9 @@ class pyVmomiService:
             return 'vm not found'
 
         return self.destroy_vm(vm)
+
+    def get_network_by_name_from_vm(self, vm, network_name):
+        for network in vm.network:
+            if network_name == network.name:
+                return network
+        return None

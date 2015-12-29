@@ -51,4 +51,4 @@ class VirtualSwitchToMachineCommandIntegrationTest(TestCase):
 
         virtual_switch_to_machine_connector.disconnect('name of the vCenter',
                                                        uuid,
-                                                       'QS_TMP_PORTGROUP')
+                                                       'boris_group12')
