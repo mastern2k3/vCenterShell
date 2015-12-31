@@ -26,7 +26,7 @@ class VirtualSwitchToMachineConnector(object):
 
     def connect_specific_vnic(self, vcenter_name, dv_switch_path, dv_switch_name, dv_port_name, vm_uuid, vnic_name,
                               port_group_path, vlan_id, vlan_spec):
-        si, vm = self.connect_and_get_vmv(vcenter_name, vm_uuid)
+        si, vm = self.connect_and_get_vm(vcenter_name, vm_uuid)
 
         network = self.get_or_create_network(si,
                                              vm,

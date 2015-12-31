@@ -60,7 +60,7 @@ class VirtualMachinePortGroupConfigurer(object):
                 update_mapping.append((vnic, network, True))
 
         if update_mapping:
-            return update_mapping(vm, update_mapping)
+            return self.update_vnic_by_mapping(vm, update_mapping)
         return None
 
     def disconnect_all_port_groups(self, vm):
