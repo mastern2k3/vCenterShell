@@ -20,7 +20,7 @@ class VirtualSwitchToMachineConnectorIntegrationTest(TestCase):
         resource_connection_details_retriever = Mock()
         credentials = TestCredentials()
         resource_connection_details_retriever.connection_details = Mock(
-                return_value=VCenterConnectionDetails(credentials.host, credentials.username, credentials.password))
+            return_value=VCenterConnectionDetails(credentials.host, credentials.username, credentials.password))
         py_vmomi_service = pyVmomiService(SmartConnect, Disconnect)
         synchronous_task_waiter = SynchronousTaskWaiter()
 
@@ -38,15 +38,15 @@ class VirtualSwitchToMachineConnectorIntegrationTest(TestCase):
                                       credentials.port)
 
         virtual_machine_path = 'QualiSB/Raz'
-        virtual_machine_name = '1'
-        vm_uuid = py_vmomi_service.find_vm_by_name(si, virtual_machine_path, virtual_machine_name).config.uuid
+        vcenter_name = '1'
+        vm_uuid = py_vmomi_service.find_vm_by_name(si, virtual_machine_path, vcenter_name).config.uuid
         port_group_path = 'QualiSB'
         dv_switch_path = 'QualiSB'
         dv_switch_name = 'dvSwitch'
         dv_port_name = 'boris_group15'
 
         # Act
-        virtual_switch_to_machine_connector.connect(virtual_machine_name,
+        virtual_switch_to_machine_connector.connect(vcenter_name,
                                                     dv_switch_path,
                                                     dv_switch_name,
                                                     dv_port_name,
@@ -54,11 +54,11 @@ class VirtualSwitchToMachineConnectorIntegrationTest(TestCase):
                                                     port_group_path, 51,
                                                     vim.dvs.VmwareDistributedVirtualSwitch.VlanIdSpec())
 
-    def test_connect_(self):
+    def test_connect_to_multiple_networks(self):
         resource_connection_details_retriever = Mock()
         credentials = TestCredentials()
         resource_connection_details_retriever.connection_details = Mock(
-                return_value=VCenterConnectionDetails(credentials.host, credentials.username, credentials.password))
+            return_value=VCenterConnectionDetails(credentials.host, credentials.username, credentials.password))
         py_vmomi_service = pyVmomiService(SmartConnect, Disconnect)
         synchronous_task_waiter = SynchronousTaskWaiter()
 
@@ -76,18 +76,33 @@ class VirtualSwitchToMachineConnectorIntegrationTest(TestCase):
                                       credentials.port)
 
         virtual_machine_path = 'QualiSB/Raz'
-        virtual_machine_name = '1'
-        vm_uuid = py_vmomi_service.find_vm_by_name(si, virtual_machine_path, virtual_machine_name).config.uuid
+        vm_name = '1'
+        vcenter_name = 'vcenter'
+        vm_uuid = py_vmomi_service.find_vm_by_name(si, virtual_machine_path, vm_name).config.uuid
         port_group_path = 'QualiSB'
         dv_switch_path = 'QualiSB'
         dv_switch_name = 'dvSwitch'
-        dv_port_name = 'boris_group15'
+        vlan_id = 51
+
+        networks = [
+            {
+                'dv_port_name': 'boris_group22',
+                'dv_switch_name': dv_switch_name,
+                'dv_switch_path': dv_switch_path,
+                'port_group_path': port_group_path,
+                'vlan_id': vlan_id
+            },
+            {
+                'dv_port_name': 'boris_group13',
+                'dv_switch_name': dv_switch_name,
+                'dv_switch_path': dv_switch_path,
+                'port_group_path': port_group_path,
+                'vlan_id': vlan_id
+            }
+        ]
 
         # Act
-        virtual_switch_to_machine_connector.connect(virtual_machine_name,
-                                                    dv_switch_path,
-                                                    dv_switch_name,
-                                                    dv_port_name,
-                                                    vm_uuid,
-                                                    port_group_path, 51,
-                                                    vim.dvs.VmwareDistributedVirtualSwitch.VlanIdSpec())
+        virtual_switch_to_machine_connector.connect_networks(vcenter_name,
+                                                             vm_uuid,
+                                                             vim.dvs.VmwareDistributedVirtualSwitch.VlanIdSpec(),
+                                                             networks)

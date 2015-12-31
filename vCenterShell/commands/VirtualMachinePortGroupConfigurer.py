@@ -10,12 +10,15 @@ class VirtualMachinePortGroupConfigurer(object):
 
     def connect_networks(self, vm, networks):
         vnic_mapping = self.map_vnics(vm)
+        vnic_map_helper = dict()
         update_mapping = []
         sorted_by_name = sorted(vnic_mapping.items(), key=lambda kvp: kvp[0])
         for network in networks:
             for vnic_name, vnic in sorted_by_name:
-                if self.is_vnic_disconnected(vnic):
+                if not (vnic_name in vnic_map_helper) and self.is_vnic_disconnected(vnic):
                     update_mapping.append((vnic, network, True))
+                    vnic_map_helper[vnic_name] = True
+                    break
 
         if len(update_mapping) == len(networks):
             return self.update_vnic_by_mapping(vm, update_mapping)
