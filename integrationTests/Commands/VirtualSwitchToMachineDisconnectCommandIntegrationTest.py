@@ -6,13 +6,14 @@ from pycommon import SynchronousTaskWaiter
 from pycommon.logging_service import LoggingService
 from pycommon.pyVmomiService import pyVmomiService
 from tests.testCredentials import TestCredentials
+from vCenterShell.commands.VirtualMachinePortGroupConfigurer import VirtualMachinePortGroupConfigurer
 from vCenterShell.commands.VirtualSwitchToMachineDisconnectCommand import VirtualSwitchToMachineDisconnectCommand
 
 
-class VirtualSwitchToMachineCommandIntegrationTest(TestCase):
+class VirtualSwitchToMachineDisconnectCommandIntegrationTest(TestCase):
     LoggingService("CRITICAL", "DEBUG", None)
 
-    def integration_test_delete_all(self):
+    def integration_test_disconnect_all(self):
         # arrange
         cred = TestCredentials()
         pv_service = pyVmomiService(SmartConnect, Disconnect)
@@ -23,11 +24,12 @@ class VirtualSwitchToMachineCommandIntegrationTest(TestCase):
         resource_connection_details_retriever.connection_details = Mock(
             return_value=VCenterConnectionDetails(credentials.host, credentials.username, credentials.password))
 
+        port_config = VirtualMachinePortGroupConfigurer(SynchronousTaskWaiter.SynchronousTaskWaiter())
         virtual_switch_to_machine_connector = \
             VirtualSwitchToMachineDisconnectCommand(pv_service,
                                                     resource_connection_details_retriever,
-                                                    SynchronousTaskWaiter.SynchronousTaskWaiter())
-        uuid = pv_service.find_vm_by_name(si, 'QualiSB/Raz', 'New Virtual Machine').config.uuid
+                                                    port_config)
+        uuid = pv_service.find_vm_by_name(si, 'QualiSB/Raz', '1').config.uuid
 
         virtual_switch_to_machine_connector.disconnect_all('name of the vCenter',
                                                            uuid)
@@ -47,7 +49,7 @@ class VirtualSwitchToMachineCommandIntegrationTest(TestCase):
             VirtualSwitchToMachineDisconnectCommand(pv_service,
                                                     resource_connection_details_retriever,
                                                     SynchronousTaskWaiter.SynchronousTaskWaiter())
-        uuid = pv_service.find_vm_by_name(si, 'QualiSB/Raz/', '2').config.uuid
+        uuid = pv_service.find_vm_by_name(si, 'QualiSB/Raz/', '1').config.uuid
 
         virtual_switch_to_machine_connector.disconnect('name of the vCenter',
                                                        uuid,

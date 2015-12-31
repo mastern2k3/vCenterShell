@@ -16,17 +16,15 @@ class VirtualSwitchToMachineDisconnectCommand:
     def __init__(self,
                  pyvmomi_service,
                  connection_retriever,
-                 synchronous_task_waiter,
                  port_group_configurer):
         self.pyvmomi_service = pyvmomi_service
         self.connection_retriever = connection_retriever
-        self.synchronous_task_waiter = synchronous_task_waiter
         self.port_group_configurer = port_group_configurer
 
-    def get_port_group_key(self, vm, network_name):
+    def get_network_by_name(self, vm, network_name):
         for network in vm.network:
             if network_name == network.name:
-                return network.key
+                return network
         return None
 
     def disconnect(self, vcenter_name, vm_uuid, network_name):
@@ -46,11 +44,11 @@ class VirtualSwitchToMachineDisconnectCommand:
 
         vm = self.pyvmomi_service.find_by_uuid(si, vm_uuid)
 
-        network_key = self.get_port_group_key(vm, network_name)
-        if network_key is None:
+        network = self.get_network_by_name(vm, network_name)
+        if network is None:
             raise KeyError('network not found ({0})'.format(network_name))
 
-        return self.remove_interfaces_from_vm(vm, lambda device: self.is_device_match_network(device, network_key))
+        return self.port_group_configurer.disconnect_network(vm, network)
 
     def disconnect_all(self, vcenter_name, vm_uuid):
         """
@@ -67,4 +65,4 @@ class VirtualSwitchToMachineDisconnectCommand:
         _logger.debug("Revoking ALL Interfaces from VM '{}'".format(vm_uuid))
 
         vm = self.pyvmomi_service.find_by_uuid(si, vm_uuid)
-        return self.remove_interfaces_from_vm(vm)
+        return self.port_group_configurer.disconnect_all_port_groups(vm)

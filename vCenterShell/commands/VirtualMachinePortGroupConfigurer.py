@@ -69,7 +69,7 @@ class VirtualMachinePortGroupConfigurer(object):
 
     def update_vnic_by_mapping(self, vm, mapping):
         vnics_change = []
-        for vnic, network, connect in mapping.items():
+        for vnic, network, connect in mapping:
             self.add_or_update_vnic_network(vnic, network)
             vnic_spec = self.get_device_spec(vnic, connect)
             vnics_change.append(vnic_spec)
@@ -87,7 +87,7 @@ class VirtualMachinePortGroupConfigurer(object):
         mapping = dict()
         for device in vm.config.hardware.device:
             if isinstance(device, vim.vm.device.VirtualEthernetCard):
-                mapping[device.name] = device
+                mapping[device.deviceInfo.label] = device
         return mapping
 
     def get_device_spec(self, vnic, set_connected):
