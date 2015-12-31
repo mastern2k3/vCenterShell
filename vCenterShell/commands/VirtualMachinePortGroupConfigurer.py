@@ -8,12 +8,14 @@ class VirtualMachinePortGroupConfigurer(object):
     def __init__(self, synchronous_task_waiter):
         self.synchronous_task_waiter = synchronous_task_waiter
 
-    def connect_first_avilaible_vnic(self, vm, network):
+    def connect_first_available_vnic(self, vm, network):
         vnic_mapping = self.map_vnics(vm)
         update_mapping = []
-        for vnic_name, vnic in vnic_mapping:
+        sorted_by_name = sorted(vnic_mapping.items(), key=lambda kvp: kvp[0])
+        for vnic_name, vnic in sorted_by_name:
             if self.is_vnic_disconnected(vnic):
-                return update_mapping.append((vnic, network, True))
+                update_mapping.append((vnic, network, True))
+                return self.update_vnic_by_mapping(vm, update_mapping)
                 # if self.is_vnic_attached_to_network(vnic, network)
         raise Exception('no available vnic')
 

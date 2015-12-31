@@ -9,8 +9,8 @@ class VirtualSwitchToMachineConnector(object):
         self.dv_port_group_creator = dv_port_group_creator
         self.virtual_machine_port_group_configurer = virtual_machine_port_group_configurer
 
-    def connect(self, virtual_machine_name, dv_switch_path, dv_switch_name, dv_port_name, virtual_machine_path, vm_uuid,
-                port_group_path, vlad_id, vlan_spec):
+    def connect(self, virtual_machine_name, dv_switch_path, dv_switch_name, dv_port_name, vm_uuid, port_group_path,
+                vlad_id, vlan_spec):
         connection_details = self.resourceConnectionDetailsRetriever.connection_details(virtual_machine_name)
 
         si = self.pyvmomi_service.connect(connection_details.host, connection_details.username,
@@ -28,7 +28,7 @@ class VirtualSwitchToMachineConnector(object):
                                              vlad_id,
                                              vlan_spec, vm)
 
-        self.virtual_machine_port_group_configurer.connect_port_group(vm, network)
+        self.virtual_machine_port_group_configurer.connect_first_available_vnic(vm, network)
 
     def get_or_create_network(self,
                               dv_port_name,
