@@ -148,7 +148,7 @@ class VirtualSwitchToMachineConnectorIntegrationTest(TestCase):
                                                                   vlan_id,
                                                                   vim.dvs.VmwareDistributedVirtualSwitch.VlanIdSpec())
 
-    def test_connect_vnic_to_network(self):
+    def test_connect_by_mapping(self):
         resource_connection_details_retriever = Mock()
         credentials = TestCredentials()
         resource_connection_details_retriever.connection_details = Mock(
