@@ -8,6 +8,19 @@ class VirtualMachinePortGroupConfigurer(object):
     def __init__(self, synchronous_task_waiter):
         self.synchronous_task_waiter = synchronous_task_waiter
 
+    def connect_networks(self, vm, networks):
+        vnic_mapping = self.map_vnics(vm)
+        update_mapping = []
+        sorted_by_name = sorted(vnic_mapping.items(), key=lambda kvp: kvp[0])
+        for network in networks:
+            for vnic_name, vnic in sorted_by_name:
+                if self.is_vnic_disconnected(vnic):
+                    update_mapping.append((vnic, network, True))
+
+        if len(update_mapping) == len(networks):
+            return self.update_vnic_by_mapping(vm, update_mapping)
+        raise Exception('not enough available vnics')
+
     def connect_first_available_vnic(self, vm, network):
         vnic_mapping = self.map_vnics(vm)
         update_mapping = []
@@ -19,7 +32,7 @@ class VirtualMachinePortGroupConfigurer(object):
                 # if self.is_vnic_attached_to_network(vnic, network)
         raise Exception('no available vnic')
 
-    def connect_port_group(self, vm, vnic_name, network):
+    def connect_vinc_port_group(self, vm, vnic_name, network):
         """
         this function connect specific vnic to network
         :param vm: virtual machine
@@ -34,7 +47,7 @@ class VirtualMachinePortGroupConfigurer(object):
         """
         connect connect the vnics to the network by the specification in the mapping
         :param vm: virtual machine
-        :param mapping: a dictionary vnic_name to network ({'network 1': <vim.Network>network})
+        :param mapping: a dictionary vnic_name to network ({'vnic_name 1': <vim.Network>network})
         """
         update_mapping = []
         vnic_mapping = self.map_vnics(vm)
