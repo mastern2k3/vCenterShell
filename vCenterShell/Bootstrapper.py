@@ -54,7 +54,6 @@ class Bootstrapper(object):
         virtual_switch_disconnect_command = \
             VirtualSwitchToMachineDisconnectCommand(pyVmomiService,
                                                     resource_connection_details_retriever,
-                                                    synchronous_task_waiter,
                                                     virtual_machine_port_group_configurer)
 
         # Power Command

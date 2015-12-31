@@ -5,10 +5,9 @@ from mock import Mock, MagicMock
 from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
 
-from models.VCenterConnectionDetails import VCenterConnectionDetails
 from pycommon.logging_service import LoggingService
+from pycommon.pyVmomiService import pyVmomiService
 from tests.testCredentials import TestCredentials
-from vCenterShell.commands.DvPortGroupCreator import DvPortGroupCreator
 from vCenterShell.commands.VirtualSwitchToMachineConnector import *
 
 
