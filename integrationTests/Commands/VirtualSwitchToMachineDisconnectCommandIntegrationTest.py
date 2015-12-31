@@ -29,6 +29,7 @@ class VirtualSwitchToMachineDisconnectCommandIntegrationTest(TestCase):
             VirtualSwitchToMachineDisconnectCommand(pv_service,
                                                     resource_connection_details_retriever,
                                                     port_config)
+
         uuid = pv_service.find_vm_by_name(si, 'QualiSB/Raz', '1').config.uuid
 
         virtual_switch_to_machine_connector.disconnect_all('name of the vCenter',
@@ -45,12 +46,14 @@ class VirtualSwitchToMachineDisconnectCommandIntegrationTest(TestCase):
         resource_connection_details_retriever.connection_details = Mock(
             return_value=VCenterConnectionDetails(credentials.host, credentials.username, credentials.password))
 
+        port_config = VirtualMachinePortGroupConfigurer(SynchronousTaskWaiter.SynchronousTaskWaiter())
         virtual_switch_to_machine_connector = \
             VirtualSwitchToMachineDisconnectCommand(pv_service,
                                                     resource_connection_details_retriever,
-                                                    SynchronousTaskWaiter.SynchronousTaskWaiter())
+                                                    port_config)
+
         uuid = pv_service.find_vm_by_name(si, 'QualiSB/Raz/', '1').config.uuid
 
         virtual_switch_to_machine_connector.disconnect('name of the vCenter',
                                                        uuid,
-                                                       'boris_group12')
+                                                       'boris_group14')

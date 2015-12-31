@@ -58,10 +58,10 @@ class VirtualMachinePortGroupConfigurer(object):
     def disconnect_network(self, vm, network):
         vnics = self.map_vnics(vm)
         update_mapping = []
-        for vnic_name, vnic in vnics:
+        for vnic_name, vnic in vnics.items():
             if self.is_vnic_attached_to_network(vnic, network) and \
                     not self.is_vnic_disconnected(vnic):
-                update_mapping((vnic, network, False))
+                update_mapping.append((vnic, network, False))
 
         if update_mapping:
             return self.update_vnic_by_mapping(vm, update_mapping)
