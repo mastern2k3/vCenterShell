@@ -48,7 +48,8 @@ class Bootstrapper(object):
                                                                      DvPortGroupNameGenerator(),
                                                                      VlanSpecFactory(),
                                                                      VLanIdRangeParser(),
-                                                                     ResourceModelParser())
+                                                                     ResourceModelParser(),
+                                                                     helpers)
 
         # Virtual Switch Revoke
         virtual_switch_disconnect_command = \
