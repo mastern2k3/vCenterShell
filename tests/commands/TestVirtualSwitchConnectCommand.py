@@ -115,3 +115,49 @@ class TestVirtualSwitchConnectCommand(TestCase):
                                                                             vcenter_resource_model.default_port_group_path,
                                                                             vln_range,
                                                                             vln_spec))
+
+    def test_connect_networks(self):
+        vln_id = 'id'
+        vln_range = 'range'
+        vln_spec = Mock()
+        resource_context = Mock()
+        session = Mock()
+        inventory_path_data = Mock()
+        cs_ret_service = Mock()
+        virtual_connector = Mock()
+        dv_port_name_gen = Mock()
+        vlan_spec_factory = Mock()
+        vlan_range_parser = Mock()
+        resourse_model_parser = Mock()
+        helpers = Mock()
+        vcenter_resource_details = Mock()
+        networks_mapping = Mock()
+        resource_context.uuid = 'uuid'
+        inventory_path_data.vCenter_resource_name = 'vecenter name'
+
+        session.GetResourceDetails = Mock(return_value=vcenter_resource_details)
+        helpers.get_api_session = Mock(return_value=session)
+        helpers.get_resource_context_details = Mock(return_value=resource_context)
+        cs_ret_service.getVCenterInventoryPathAttributeData = Mock(return_value=inventory_path_data)
+        resourse_model_parser.convert_to_resource_model = Mock(return_value=networks_mapping)
+        vlan_range_parser.parse_vlan_id = Mock(return_value=vln_range)
+        vlan_spec_factory.get_vlan_spec = Mock(return_value=vln_spec)
+        virtual_connector.connect = Mock(return_value=True)
+
+        command = VirtualSwitchConnectCommand(cs_ret_service, virtual_connector, dv_port_name_gen, vlan_spec_factory,
+                                              vlan_range_parser, resourse_model_parser, helpers)
+
+        command.connect_networks(vln_id, vln_spec)
+
+        self.assertTrue(helpers.get_resource_context_details.called)
+        self.assertTrue(helpers.get_api_session.called)
+        self.assertTrue(resourse_model_parser.convert_to_resource_model.called_with(resource_context))
+        self.assertTrue(cs_ret_service.getVCenterInventoryPathAttributeData.called_with(resource_context))
+        self.assertTrue(session.GetResourceDetails.called_with(inventory_path_data.vCenter_resource_name))
+        self.assertTrue(vlan_range_parser.parse_vlan_id.called_with(vln_id))
+        self.assertTrue(dv_port_name_gen.generate_port_group_name.called_with(vln_id))
+        self.assertTrue(vlan_spec_factory.get_vlan_spec(vln_spec))
+        self.assertTrue(virtual_connector.connect_networks.called_with(inventory_path_data.vCenter_resource_name,
+                                                                       resource_context.uuid,
+                                                                       vln_spec,
+                                                                       networks_mapping))
