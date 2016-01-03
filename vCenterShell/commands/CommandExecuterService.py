@@ -2,7 +2,6 @@
 import qualipy.scripts.cloudshell_scripts_helpers as helpers
 
 
-
 class CommandExecuterService(object):
     """ main class that publishes all available commands """
 
@@ -36,10 +35,26 @@ class CommandExecuterService(object):
         self.disconnect_all()
         self.destroyVirtualMachineCommand.execute()
 
-    def connect(self):
+    def connect_to_first_vnic(self):
         vlan_id = helpers.get_user_param('VLAN_ID')
         vlan_spec_type = helpers.get_user_param('VLAN_SPEC_TYPE')
-        self.virtual_switch_connect_command.connect_vm_to_vlan(vlan_id, vlan_spec_type)
+        self.virtual_switch_connect_command.connect_to_first_vnic(vlan_id, vlan_spec_type)
+
+    def connect_specific_vnic(self):
+        vlan_id = helpers.get_user_param('VLAN_ID')
+        vlan_spec_type = helpers.get_user_param('VLAN_SPEC_TYPE')
+        vnic_name = helpers.get_user_param('VNIC_NAME')
+        self.virtual_switch_connect_command.connect_specific_vnic(vlan_id, vlan_spec_type, vnic_name)
+
+    def connect_networks(self):
+        vlan_id = helpers.get_user_param('VLAN_ID')
+        vlan_spec_type = helpers.get_user_param('VLAN_SPEC_TYPE')
+        self.virtual_switch_connect_command.connect_networks(vlan_id, vlan_spec_type)
+
+    def connect_by_mapping(self):
+        vlan_id = helpers.get_user_param('VLAN_ID')
+        vlan_spec_type = helpers.get_user_param('VLAN_SPEC_TYPE')
+        self.virtual_switch_connect_command.connect_by_mapping(vlan_id, vlan_spec_type)
 
     def disconnect_all(self):
         # todo: the vcenter param should be getting inside the command from resource
