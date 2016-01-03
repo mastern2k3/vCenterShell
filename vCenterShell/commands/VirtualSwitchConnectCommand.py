@@ -78,3 +78,16 @@ class VirtualSwitchConnectCommand:
                                                                   self.vm_uuid,
                                                                   vlan_spec,
                                                                   networks_mapping)
+
+    def connect_by_mapping(self, vlan_id, vlan_spec_type):
+        self.create_context(self.helpers)
+        vcenter_resource_name = self.inventory_path_data.vCenter_resource_name
+        vcenter_resource_details = self.session.GetResourceDetails(vcenter_resource_name)
+
+        mapping = self.resourse_model_parser.convert_to_resource_model(vcenter_resource_details)
+        vlan_spec = self.vlan_spec_factory.get_vlan_spec(vlan_spec_type)
+
+        self.virtual_switch_to_machine_connector.connect_by_mapping(vcenter_resource_name,
+                                                                    self.vm_uuid,
+                                                                    vlan_spec,
+                                                                    mapping)
