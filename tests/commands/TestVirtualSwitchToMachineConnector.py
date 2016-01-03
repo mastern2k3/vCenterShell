@@ -1,10 +1,8 @@
 import uuid
 from unittest import TestCase
-
 from mock import Mock, MagicMock
 from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
-
 from pycommon.logging_service import LoggingService
 from pycommon.pyVmomiService import pyVmomiService
 from tests.testCredentials import TestCredentials
@@ -90,7 +88,7 @@ class TestVirtualSwitchToMachineConnector(TestCase):
         self.assertTrue(py_vmomi_service.get_network_by_name_from_vm.called_with(vm, dv_port_name))
         self.assertTrue(virtual_machine_port_group_configurer.connect_port_group.called_with(vm, network))
 
-    def test_connect_specific_vnic(self):
+    def test_connect_networks(self):
         # Arrange
         si = Mock()
         network = Mock()
@@ -210,3 +208,71 @@ class TestVirtualSwitchToMachineConnector(TestCase):
         vm = py_vmomi_service.get_obj(si.content, [vim.VirtualMachine], virtual_machine_name)
         vm_uuid = vm.config.uuid
         return vm_uuid
+
+    def test_get_or_create_network_not_found(self):
+        # arrange
+        py_vmomi_service = Mock()
+        dv_port_group_creator = MagicMock()
+
+        py_vmomi_service.get_network_by_name_from_vm = Mock(return_value=None)
+        py_vmomi_service.find_network_by_name = Mock(return_value=None)
+        dv_port_group_creator.create_dv_port_group = Mock(return_value=None)
+
+        virtual_switch_to_machine_connector = VirtualSwitchToMachineConnector(py_vmomi_service,
+                                                                              Mock(),
+                                                                              dv_port_group_creator,
+                                                                              Mock())
+
+        # act
+        res = virtual_switch_to_machine_connector.get_or_create_network(Mock(), Mock(), Mock(), Mock, Mock(), Mock(),
+                                                                        Mock(),
+                                                                        Mock())
+
+        # assert
+        self.assertIsNone(res)
+
+    def test_get_or_create_network_find_by_name(self):
+        # arrange
+        py_vmomi_service = Mock()
+        dv_port_group_creator = MagicMock()
+        network = Mock()
+
+        py_vmomi_service.get_network_by_name_from_vm = Mock(return_value=None)
+        py_vmomi_service.find_network_by_name = Mock(return_value=network)
+        dv_port_group_creator.create_dv_port_group = Mock(return_value=None)
+
+        virtual_switch_to_machine_connector = VirtualSwitchToMachineConnector(py_vmomi_service,
+                                                                              Mock(),
+                                                                              dv_port_group_creator,
+                                                                              Mock())
+
+        # act
+        res = virtual_switch_to_machine_connector.get_or_create_network(Mock(), Mock(), Mock(), Mock, Mock(), Mock(),
+                                                                        Mock(),
+                                                                        Mock())
+
+        # assert
+        self.assertEqual(res, network)
+
+    def test_get_or_create_network_create_network(self):
+        # arrange
+        py_vmomi_service = Mock()
+        dv_port_group_creator = MagicMock()
+        network = Mock()
+
+        py_vmomi_service.get_network_by_name_from_vm = Mock(return_value=None)
+        py_vmomi_service.find_network_by_name = Mock(return_value=None)
+        dv_port_group_creator.create_dv_port_group = Mock(return_value=network)
+
+        virtual_switch_to_machine_connector = VirtualSwitchToMachineConnector(py_vmomi_service,
+                                                                              Mock(),
+                                                                              dv_port_group_creator,
+                                                                              Mock())
+
+        # act
+        res = virtual_switch_to_machine_connector.get_or_create_network(Mock(), Mock(), Mock(), Mock, Mock(), Mock(),
+                                                                        Mock(),
+                                                                        Mock())
+
+        # assert
+        self.assertEqual(res, network)

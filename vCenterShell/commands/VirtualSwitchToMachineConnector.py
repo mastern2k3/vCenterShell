@@ -90,12 +90,12 @@ class VirtualSwitchToMachineConnector(object):
 
         # if we still couldn't get the network ---> create it(can't find it, play god!)
         if network is None:
-            self.dv_port_group_creator.create_dv_port_group(dv_port_name,
-                                                            dv_switch_name,
-                                                            dv_switch_path,
-                                                            si,
-                                                            vlan_spec,
-                                                            vlan_id)
+            network = self.dv_port_group_creator.create_dv_port_group(dv_port_name,
+                                                                      dv_switch_name,
+                                                                      dv_switch_path,
+                                                                      si,
+                                                                      vlan_spec,
+                                                                      vlan_id)
         return network
 
     def get_si(self, vcenter_name):
