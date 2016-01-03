@@ -75,6 +75,8 @@ class VirtualMachinePortGroupConfigurer(object):
 
     def disconnect_network(self, vm, network):
         vnics = self.map_vnics(vm)
+        if not vnics:
+            return None
         update_mapping = []
         for vnic_name, vnic in vnics.items():
             if self.is_vnic_attached_to_network(vnic, network) and \
@@ -87,6 +89,10 @@ class VirtualMachinePortGroupConfigurer(object):
 
     def update_vnic_by_mapping(self, vm, mapping):
         vnics_change = []
+
+        if not vm or not mapping:
+            return None
+
         for vnic, network, connect in mapping:
             self.add_or_update_vnic_network(vnic, network)
             vnic_spec = self.get_device_spec(vnic, connect)

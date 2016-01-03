@@ -162,7 +162,7 @@ class TestVirtualSwitchConnectCommand(TestCase):
                                                                        vln_spec,
                                                                        networks_mapping))
 
-    def test_connect_networks(self):
+    def test_connect_by_mapping(self):
         vln_id = 'id'
         vln_range = 'range'
         vln_spec = Mock()
