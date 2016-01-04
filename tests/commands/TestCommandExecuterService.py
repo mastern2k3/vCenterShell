@@ -159,10 +159,10 @@ class TestCommandExecuterService(unittest.TestCase):
         CommandContextMocker.set_vm_uuid_param(VmContext.VNIC_NAME)
 
         # act
-        command_executer_service.connect_specific_vnic()
+        command_executer_service.connect_to_first_vnic()
 
         # assert
-        self.assertTrue(virtual_connect_command.connect_specific_vnic.called)
+        self.assertTrue(virtual_connect_command.connect_to_first_vnic.called)
 
     def test_connect_networks(self):
         # arrange
