@@ -12,7 +12,7 @@ class VirtualMachinePortGroupConfigurer(object):
         vnic_mapping = self.map_vnics(vm)
         vnic_map_helper = dict()
         update_mapping = []
-        sorted_by_name = sorted(vnic_mapping.items(), key=lambda kvp: kvp[0])
+        sorted_by_name = self.sort_vnics_by_name(vnic_mapping)
         for network in networks:
             for vnic_name, vnic in sorted_by_name:
                 if not (vnic_name in vnic_map_helper) and self.is_vnic_disconnected(vnic):
@@ -24,10 +24,14 @@ class VirtualMachinePortGroupConfigurer(object):
             return self.update_vnic_by_mapping(vm, update_mapping)
         raise Exception('not enough available vnics')
 
+    def sort_vnics_by_name(self, vnic_mapping):
+        sorted_by_name = sorted(vnic_mapping.items(), key=lambda kvp: kvp[0])
+        return sorted_by_name
+
     def connect_first_available_vnic(self, vm, network):
         vnic_mapping = self.map_vnics(vm)
         update_mapping = []
-        sorted_by_name = sorted(vnic_mapping.items(), key=lambda kvp: kvp[0])
+        sorted_by_name = self.sort_vnics_by_name(vnic_mapping)
         for vnic_name, vnic in sorted_by_name:
             if self.is_vnic_disconnected(vnic):
                 update_mapping.append((vnic, network, True))
