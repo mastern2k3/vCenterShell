@@ -201,7 +201,28 @@ class TestCommandExecuterService(unittest.TestCase):
         CommandContextMocker.set_vm_uuid_param(VmContext.VLAN_SPEC_TYPE)
 
         # act
-        command_executer_service.connect_by_mapping()
+        command_executer_service.connect_networks()
 
         # assert
-        self.assertTrue(virtual_connect_command.connect_by_mapping.called)
+        self.assertTrue(virtual_connect_command.connect_networks.called)
+
+    def test_connect_to_first_vnic(self):
+        # arrange
+        virtual_connect_command = Mock()
+        virtual_connect_command.connect_specific_vnic = Mock(return_value=True)
+        command_executer_service = CommandExecuterService(Mock(),
+                                                          Mock(),
+                                                          Mock(),
+                                                          Mock(),
+                                                          virtual_connect_command,
+                                                          Mock(),
+                                                          Mock())
+
+        CommandContextMocker.set_vm_uuid_param(VmContext.VLAN_ID)
+        CommandContextMocker.set_vm_uuid_param(VmContext.VLAN_SPEC_TYPE)
+
+        # act
+        command_executer_service.connect_to_first_vnic()
+
+        # assert
+        self.assertTrue(virtual_connect_command.connect_to_first_vnic.called)
