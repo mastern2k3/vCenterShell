@@ -55,8 +55,8 @@ class VirtualMachinePortGroupConfigurer(object):
         update_mapping = []
         vnic_mapping = self.map_vnics(vm)
         for vnic_name, network in mapping.items():
-            vnic = vnic_mapping[vnic_name]
-            if vnic:
+            if vnic_name in vnic_mapping:
+                vnic = vnic_mapping[vnic_name]
                 update_mapping.append((vnic, network, True))
 
         if update_mapping:
