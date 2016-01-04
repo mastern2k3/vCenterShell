@@ -94,8 +94,7 @@ class TestVirtualMachinePortGroupConfigurer(TestCase):
 
     def test_is_vnic_attached_to_network_no_backing(self):
         # arrange
-        device = Mock()
-        device.backing = Mock()
+        device = Mock(spec=[])
 
         network = Mock()
         network.name = 'device.backing.network.name'
@@ -254,9 +253,18 @@ class TestVirtualMachinePortGroupConfigurer(TestCase):
         self.assertEqual(res[vnic2.deviceInfo.label], vnic2)
         self.assertEqual(res[vnic3.deviceInfo.label], vnic3)
 
-    def test_update_vnic_by_mapping_empaty_mapping(self):
+    def test_update_vnic_by_mapping_is_none_mapping(self):
         # arrange
+        vmrpgc = VirtualMachinePortGroupConfigurer(self.sync_task)
 
+        # act
+        res = vmrpgc.update_vnic_by_mapping(Mock(), None)
+
+        # assert
+        self.assertIsNone(res)
+
+    def test_update_vnic_by_mapping_empty_mapping(self):
+        # arrange
         vmrpgc = VirtualMachinePortGroupConfigurer(self.sync_task)
 
         # act
@@ -380,3 +388,44 @@ class TestVirtualMachinePortGroupConfigurer(TestCase):
         self.assertTrue(vmrpgc.is_vnic_attached_to_network.called_with(vnic, network))
         self.assertFalse(vmrpgc.is_vnic_disconnected.called)
         self.assertFalse(vmrpgc.update_vnic_by_mapping.called)
+
+    def test_disconnect_all_port_groups_no_vnics(self):
+        # arrange
+        vm = Mock()
+        vnics_mapping = dict()
+
+        vmrpgc = VirtualMachinePortGroupConfigurer(self.sync_task)
+        vmrpgc.map_vnics = Mock(return_value=vnics_mapping)
+        vmrpgc.is_vnic_attached_to_network = Mock(return_value=False)
+        vmrpgc.is_vnic_disconnected = Mock(return_value=True)
+        vmrpgc.update_vnic_by_mapping = Mock(return_value=True)
+
+        # act
+        res = vmrpgc.disconnect_all_port_groups(vm)
+
+        # assert
+        self.assertIsNone(res)
+        self.assertTrue(vmrpgc.map_vnics.called_with(vm))
+        self.assertFalse(vmrpgc.update_vnic_by_mapping.called)
+
+    def test_disconnect_all_port_groups(self):
+        # arrange
+        vm = Mock()
+        vnic = Mock()
+        vnic_name = 'name'
+        vnics_mapping = dict()
+        vnics_mapping[vnic_name] = vnic
+
+        vmrpgc = VirtualMachinePortGroupConfigurer(self.sync_task)
+        vmrpgc.map_vnics = Mock(return_value=vnics_mapping)
+        vmrpgc.is_vnic_attached_to_network = Mock(return_value=False)
+        vmrpgc.is_vnic_disconnected = Mock(return_value=True)
+        vmrpgc.update_vnic_by_mapping = Mock(return_value=True)
+
+        # act
+        res = vmrpgc.disconnect_all_port_groups(vm)
+
+        # assert
+        self.assertTrue(res)
+        self.assertTrue(vmrpgc.map_vnics.called_with(vm))
+        self.assertTrue(vmrpgc.update_vnic_by_mapping.called_with(vm, [(vnic, None, False)]))
