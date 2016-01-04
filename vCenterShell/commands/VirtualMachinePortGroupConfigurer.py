@@ -102,9 +102,7 @@ class VirtualMachinePortGroupConfigurer(object):
             vnic_spec = self.get_device_spec(vnic, connect)
             vnics_change.append(vnic_spec)
 
-        if vnics_change:
-            return self.reconfig_vm(vnics_change, vm)
-        return None
+        return self.reconfig_vm(vnics_change, vm)
 
     def map_vnics(self, vm):
         """

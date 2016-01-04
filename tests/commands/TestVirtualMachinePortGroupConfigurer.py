@@ -264,9 +264,9 @@ class TestVirtualMachinePortGroupConfigurer(TestCase):
     def test_update_vnic_by_mapping_empty_mapping(self):
         # arrange
         vmrpgc = VirtualMachinePortGroupConfigurer(self.sync_task)
-
+        mapping = dict()
         # act
-        res = vmrpgc.update_vnic_by_mapping(Mock(), None)
+        res = vmrpgc.update_vnic_by_mapping(Mock(), mapping)
 
         # assert
         self.assertIsNone(res)
@@ -580,7 +580,7 @@ class TestVirtualMachinePortGroupConfigurer(TestCase):
         self.assertEqual(vmrpgc.is_vnic_disconnected.call_count, 3)
         self.assertFalse(vmrpgc.update_vnic_by_mapping.called)
 
-    def test_connect_networks_no_available_vnic(self):
+    def test_connect_networks(self):
         # arrange
         vm = Mock()
         vnic1 = Mock()
