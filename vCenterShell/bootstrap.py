@@ -4,6 +4,7 @@ from pyVim.connect import SmartConnect, Disconnect
 from common.cloudshell.conn_details_retriever import ResourceConnectionDetailsRetriever
 from common.cloudshell.data_retriever import CloudshellDataRetrieverService
 from common.cloudshell.resource_remover import CloudshellResourceRemover
+from common.cloudshell.vc_data_model_retriever import VCenterDataModelRetriever
 from common.logger import getLogger
 from common.model_factory import ResourceModelParser
 from common.utilites.common_name import generate_unique_name
@@ -38,30 +39,30 @@ class Bootstrapper(object):
         template_deployer = VirtualMachineDeployer(py_vmomi_service, name_generator)
 
         deploy_from_template_command = DeployFromTemplateCommand(template_deployer)
+        resource_model_parser = ResourceModelParser()
+
+        vc_model_retriever = VCenterDataModelRetriever(helpers, resource_model_parser, cloudshell_data_retriever_service)
+        vc_data_model = vc_model_retriever.get_vcenter_data_model()
 
         # Virtual Switch Connect
         synchronous_task_waiter = SynchronousTaskWaiter()
         dv_port_group_creator = DvPortGroupCreator(py_vmomi_service, synchronous_task_waiter)
-        virtual_machine_port_group_configurer = VirtualMachinePortGroupConfigurer(py_vmomi_service,
-                                                                                  synchronous_task_waiter)
+        virtual_machine_port_group_configurer = VirtualMachinePortGroupConfigurer(synchronous_task_waiter)
         virtual_switch_to_machine_connector = VirtualSwitchToMachineConnector(py_vmomi_service,
-                                                                              resource_connection_details_retriever,
                                                                               dv_port_group_creator,
                                                                               virtual_machine_port_group_configurer)
 
-        resource_model_parser = ResourceModelParser()
-
-        virtual_switch_connect_command = VirtualSwitchConnectCommand(cloudshell_data_retriever_service,
+        virtual_switch_connect_command = VirtualSwitchConnectCommand(py_vmomi_service,
                                                                      virtual_switch_to_machine_connector,
                                                                      DvPortGroupNameGenerator(),
                                                                      VlanSpecFactory(),
                                                                      VLanIdRangeParser(),
-                                                                     resource_model_parser)
+                                                                     resource_model_parser,
+                                                                     helpers)
 
         # Virtual Switch Revoke
         virtual_switch_disconnect_command = \
-            VirtualSwitchToMachineDisconnectCommand(pyVmomiService,
-                                                    cloudshell_data_retriever_service,
+            VirtualSwitchToMachineDisconnectCommand(py_vmomi_service,
                                                     synchronous_task_waiter)
 
         destroy_virtual_machine_command = DestroyVirtualMachineCommand(py_vmomi_service,
@@ -75,7 +76,8 @@ class Bootstrapper(object):
         refresh_ip_command = RefreshIpCommand(pyVmomiService, cloudshell_data_retriever_service, helpers,
                                               resource_model_parser)
 
-        self.commandExecuterService = CommandExecuterService(jsonpickle,
+        self.commandExecuterService = CommandExecuterService(vc_data_model,
+                                                             jsonpickle,
                                                              helpers,
                                                              command_wrapper,
                                                              resource_connection_details_retriever,
